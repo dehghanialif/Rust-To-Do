@@ -30,3 +30,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# rust build directory
+rust/target

@@ -117,9 +117,46 @@ const index = () => {
     }
   }
 
+  return (
+    <div className="main-body">
+      <div className="todo-app">
+        <div className="input-section">
+          <input type="text"
+            id="todoInput"
+            placeholder="Add item..."
+            value={todoInput}
+            onChange={(e) => setTodoInput(e.target.value)}
+          />
+          <button onClick={() => addTodo()} className="add">
+            {editIndex === -1 ? "Add" : "Update"}
+          </button>
+          <input type="text"
+            id="search-input"
+            placeholder="Search"
+            value={searchItem}
+            onChange={(e) => setSearchItem(e.target.value)}
+          />
+          <button onClick={() => { }}>
+            Search
+          </button>
+        </div>
 
-
-  return <div>index</div>;
+        {/* BODY */}
+        <div className="todos">
+          <ul className="todo-list">
+            {
+              todos.length === 0 && (
+                <div>
+                  <img className="face" src="/theblockchaincoders.jpg" alt="" />
+                  <h1 className="not-found">NOT FOUND</h1>
+                </div>
+              )
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default index;

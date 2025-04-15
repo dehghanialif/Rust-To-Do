@@ -105,6 +105,19 @@ const index = () => {
     setSearchResult(results);
   };
 
+  const formatDate = (dateString) => {
+    try {
+      const data = new Date(dateString);
+      return isNaN(dateString.getTime())
+        ? "Invalid date"
+        : format(dateString, "yyyy-MM-dd HH:mm:ss");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+
   return <div>index</div>;
 };
 

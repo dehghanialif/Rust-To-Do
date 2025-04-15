@@ -43,6 +43,9 @@ async fn add_todo(item: web::Json<CreateTodoItem>, data: web::Data<AppState>) ->
         created_at: Utc::now(),
     };
     todos.push(new_todo);
+    for todo in todos.iter() {
+        println!("{}", todo.id);
+    }
     HttpResponse::Ok().json(&*todos)
 }
 
@@ -54,6 +57,7 @@ async fn update_todo(
     let mut todos = data.todo_list.lock().unwrap();
 
     if let Some(todo) = todos.iter_mut().find(|todo| todo.id == *path) {
+        println!("Found item to update: {}", todo.id);
         if let Some(title) = &item.title {
             todo.title = title.clone();
         }
@@ -71,7 +75,11 @@ async fn update_todo(
 async fn delete_todo(path: web::Path<Uuid>, data: web::Data<AppState>) -> impl Responder {
     let mut todos = data.todo_list.lock().unwrap();
     if todos.iter().any(|todo| todo.id == *path) {
-        todos.retain(|todo| todo.id == *path);
+        todos.retain(|todo| todo.id != *path);
+        println!("found todo item");
+        for i in todos.iter() {
+            println!("{}, {}", i.id, i.title);
+        }
         HttpResponse::Ok().json(&*todos)
     } else {
         HttpResponse::NotFound().body("Todo not found")
@@ -95,6 +103,7 @@ async fn main() -> std::io::Result<()> {
             .route("/todos", web::get().to(get_todos))
             .route("/todos", web::post().to(add_todo))
             .route("/todos/{id}", web::put().to(update_todo))
+            .route("/todos/{id}", web::delete().to(delete_todo))
     })
     .bind("127.0.0.1:8080")?
     .run()

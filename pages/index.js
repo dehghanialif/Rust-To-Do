@@ -4,6 +4,7 @@ import axios from "axios";
 import { format } from "date-fns";
 
 // IMPORT COMPONENT
+import CheckBox from "../Components/CheckBox";
 
 const index = () => {
   const [editText, setEditText] = useState();
@@ -31,7 +32,7 @@ const index = () => {
   const fetchTodos = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:8080/todos");
-      console.log(response);
+      console.log(response.data);
       setTodos(response.data);
       setTodosCopy(response.data);
     } catch (error) {
@@ -43,7 +44,7 @@ const index = () => {
     try {
       if (editIndex === -1) {
         // ADD NEW TODO
-        const response = await axios.get("http://127.0.0.1:8080/todos", {
+        const response = await axios.post("http://127.0.0.1:8080/todos", {
           title: todoInput,
           completed: false,
         });
@@ -53,10 +54,12 @@ const index = () => {
       } else {
         // UPDATE EXISTING todo
         const todoToUpdate = { ...todos[editIndex], title: todoInput };
+        console.log(todoToUpdate);
         const response = await axios.put(
-          `http://127.0.0.1:8080/todos/${todoToUpdate}`,
+          `http://127.0.0.1:8080/todos/${todoToUpdate.id}`,
           {
-            todoToUpdate,
+            title: todoToUpdate.title,
+            completed: todoToUpdate.completed,
           }
         );
         console.log(response);
@@ -73,6 +76,7 @@ const index = () => {
   };
 
   const deleteTodo = async (id) => {
+    console.log(id);
     try {
       const response = await axios.delete(`http://127.0.0.1:8080/todos/${id}`);
       setTodos(todos.filter((todo) => todo.id !== id));
@@ -87,8 +91,9 @@ const index = () => {
         ...todos[index],
         completed: !todos[index].completed,
       };
-      const response = await axios.delete(
-        `http://127.0.0.1:8080/todos/${todoToUpdate.id}`
+      const response = await axios.put(
+        `http://127.0.0.1:8080/todos/${todoToUpdate.id}`,
+        todoToUpdate
       );
       const updatedTodos = [...todos];
       updatedTodos[index] = response.data;
@@ -109,13 +114,66 @@ const index = () => {
   const formatDate = (dateString) => {
     try {
       const data = new Date(dateString);
-      return isNaN(dateString.getTime())
+      return isNaN(data.getTime())
         ? "Invalid date"
-        : format(dateString, "yyyy-MM-dd HH:mm:ss");
+        : format(data, "yyyy-MM-dd HH:mm:ss");
     } catch (error) {
       console.log(error);
     }
   }
+
+  const renderTodos = (todosToRender) => {
+    return todosToRender.map((todo, index) => (
+      <li key={index} className="li">
+        <CheckBox toggleCompleted={toggleCompleted} index={index} todo={todo} />
+        <label htmlFor="" className="form-check-label"></label>
+        <span className="todo-text">
+          {`${todo.title} ${formatDate(todo.created_at)}`}
+        </span>
+        <span className="span-button" onClick={() => deleteTodo(todo.id)}>
+          <i className="fa-solid fa-trash">
+            <MdDelete />
+          </i>
+        </span>
+        <span className="span-button" onClick={() => editTodo(index)}>
+          <i className="fa-solid fa-trash">
+            <MdEdit />
+          </i>
+        </span>
+      </li>
+    ))
+  }
+
+  // FILTER
+  const onHandleSearch = (value) => {
+    const filteredToDo = todos.filter(({ title }) =>
+      title.toLowerCase().includes(value.toLowerCase())
+    );
+    if (filteredToDo.length === 0) {
+      setTodos(todosCopy);
+    } else {
+      setTodos(filteredToDo);
+    }
+  }
+
+  const onClearSearch = () => {
+    if (todos.length && todosCopy.length) {
+      setTodos(todosCopy);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchItem), 1000);
+    return () => clearTimeout(timer);
+  }, [searchItem])
+
+  useEffect(() => {
+    if (search) {
+      onHandleSearch();
+    } else {
+      onClearSearch();
+    }
+  }, [search])
 
   return (
     <div className="main-body">
@@ -143,16 +201,16 @@ const index = () => {
 
         {/* BODY */}
         <div className="todos">
-          <ul className="todo-list">
-            {
-              todos.length === 0 && (
-                <div>
-                  <img className="face" src="/theblockchaincoders.jpg" alt="" />
-                  <h1 className="not-found">NOT FOUND</h1>
-                </div>
-              )
-            }
-          </ul>
+          <ul className="todo-list">{renderTodos(todos)}</ul>
+          {
+            todos.length === 0 && (
+              <div>
+                <img className="face" src="/theblockchaincoders.jpg" alt="" />
+                <h1 className="not-found">NOT FOUND</h1>
+              </div>
+            )
+          }
+
         </div>
       </div>
     </div>

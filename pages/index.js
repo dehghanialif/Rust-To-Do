@@ -169,7 +169,7 @@ const index = () => {
 
   useEffect(() => {
     if (search) {
-      onHandleSearch();
+      onHandleSearch(search);
     } else {
       onClearSearch();
     }

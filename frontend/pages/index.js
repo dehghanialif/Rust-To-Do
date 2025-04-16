@@ -31,7 +31,7 @@ const index = () => {
 
   const fetchTodos = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8080/todos");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/todos`);
       console.log(response.data);
       setTodos(response.data);
       setTodosCopy(response.data);
@@ -44,7 +44,7 @@ const index = () => {
     try {
       if (editIndex === -1) {
         // ADD NEW TODO
-        const response = await axios.post("http://127.0.0.1:8080/todos", {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/todos`, {
           title: todoInput,
           completed: false,
         });
@@ -56,7 +56,7 @@ const index = () => {
         const todoToUpdate = { ...todos[editIndex], title: todoInput };
         console.log(todoToUpdate);
         const response = await axios.put(
-          `http://127.0.0.1:8080/todos/${todoToUpdate.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/todos/${todoToUpdate.id}`,
           {
             title: todoToUpdate.title,
             completed: todoToUpdate.completed,
@@ -78,7 +78,7 @@ const index = () => {
   const deleteTodo = async (id) => {
     console.log(id);
     try {
-      const response = await axios.delete(`http://127.0.0.1:8080/todos/${id}`);
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/todos/${id}`);
       setTodos(todos.filter((todo) => todo.id !== id));
     } catch (error) {
       console.log(error);
@@ -92,7 +92,7 @@ const index = () => {
         completed: !todos[index].completed,
       };
       const response = await axios.put(
-        `http://127.0.0.1:8080/todos/${todoToUpdate.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/todos/${todoToUpdate.id}`,
         todoToUpdate
       );
       const updatedTodos = [...todos];
